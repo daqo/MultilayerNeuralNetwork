@@ -6,6 +6,7 @@ class NeuralNetwork
   attr_accessor :hidden_layer, :output_layer, :inputs, :target_value, :output, :hidden_layer_output
   NUM_OF_PERCEPTRON_IN_HIDDEN_LAYER = 2
   NUM_OF_PERCEPTRON_IN_OUTPUT_LAYER = 1
+  EPOCH_MAX = 1000
 
   def initialize(inputs, target_value)
     self.inputs = inputs
@@ -17,7 +18,7 @@ class NeuralNetwork
     @output_layer = []
     @output_layer << Perceptron.new(nil, [1.5, -1, 1])
 
-    1000.times { 
+    EPOCH_MAX.times { 
       train
       final_output
     }
@@ -78,10 +79,6 @@ class NeuralNetwork
         current_weights[i] += 0.5 * errors_hidden_units[j] * inputs[i]
       end
     end
-
-    # puts "hidden layer:"
-    # p @hidden_layer
-    # puts "---------------------------"
   end
 
   def calculate_error_for_hidden_units(hidden_layer, hidden_layer_output, error_output)

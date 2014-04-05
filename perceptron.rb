@@ -1,6 +1,5 @@
 class Perceptron
   attr_accessor :weights, :inputs
-  @@learning_factor = 0.05
 
   def initialize(inputs, weights = nil)
     #inputs << 1 #Bias
@@ -22,10 +21,10 @@ class Perceptron
     @weights.each_with_index do |w, i|
       sum += @inputs[i] * w
     end
-    activate(sum)
+    calculate_estimated_output(sum)
   end
 
-  def activate(sum)
+  def calculate_estimated_output(sum)
     1.to_f / (1 + Math::E ** (-1 * sum))
   end
 end
