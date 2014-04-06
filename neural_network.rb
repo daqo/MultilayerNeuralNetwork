@@ -29,17 +29,24 @@ class NeuralNetwork
     end
   end
 
-  def feed(inputs, target_value)
-    self.inputs = inputs
-    self.target_value = target_value
-
-    @hidden_layer.each do |p|
-      p.inputs = inputs
+  def train(training_records)
+    training_records.each do |r|
+      self.feed(r[0] << 1, r[1])
     end
-    train
   end
 
-  def train
+  def feed(record_attributes, target_value)
+    self.inputs = record_attributes
+    self.target_value = target_value
+
+    @hidden_layer.each do |perceptron|
+      perceptron.inputs = record_attributes
+    end
+
+    self.backpropagate
+  end
+
+  def backpropagate
     @hidden_layer_output = []
     @output_layer_output = []
 
@@ -86,8 +93,8 @@ class NeuralNetwork
 
   def final_output
     estimated_output = @output_layer[0].weights[0] * @output_layer[0].inputs[0] +
-                        @output_layer[0].weights[1] * @output_layer[0].inputs[1] +
-                        @output_layer[0].weights[2] * @output_layer[0].inputs[2]
+      @output_layer[0].weights[1] * @output_layer[0].inputs[1] +
+      @output_layer[0].weights[2] * @output_layer[0].inputs[2]
     est = 1.to_f / (1 + Math::E ** (-1 * estimated_output))
     puts "estimated_output: #{est}"
     puts "---------------------------"
