@@ -102,15 +102,12 @@ test_records = [
   [[0,1,0,3],[1,0,0,0]]
 ]
 
-nn = NeuralNetwork.new
+multi_layer_neural_network = NeuralNetwork.new(4, 4, 4)
 1000.times do 
-  nn.train(records)
-#  records.each do |r|
-#    nn.feed(r[0] << 1, r[1])
-#  end
+  multi_layer_neural_network.train(records)
 end
 
 test_records.each do |r|
-  oracle = nn.test(r[0] << 1)
+  oracle = multi_layer_neural_network.test(r[0] << 1)
   puts "Result: #{r[1]}, Oracle: #{oracle}"
 end
