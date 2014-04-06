@@ -4,34 +4,29 @@ require_relative 'perceptron'
 
 class NeuralNetwork
   attr_accessor :hidden_layer, :output_layer, :inputs, :target_value, :output, :hidden_layer_output, :output_layer_output
-  NUM_OF_PERCEPTRON_IN_HIDDEN_LAYER = 2
-  NUM_OF_PERCEPTRON_IN_OUTPUT_LAYER = 1
+  NUM_OF_PERCEPTRON_IN_HIDDEN_LAYER = 4
+  NUM_OF_PERCEPTRON_IN_OUTPUT_LAYER = 4
+  NUM_OF_ATTRIBUTES = 4
   EPOCH_MAX = 1000
 
   def initialize
     @hidden_layer = []
-    @hidden_layer << Perceptron.new([])
-    @hidden_layer << Perceptron.new([])
-    @hidden_layer << Perceptron.new([])
-    @hidden_layer << Perceptron.new([])
-    @hidden_layer.each do |p|
-      (4 + 1).times do #hardcoded
-        p.weights << rand(-0.1..0.1)
+    NUM_OF_PERCEPTRON_IN_HIDDEN_LAYER.times do
+      perceptron = Perceptron.new([])
+      (NUM_OF_ATTRIBUTES + 1).times do
+        perceptron.weights << rand(-0.1..0.1)
       end
+      @hidden_layer << perceptron
     end
 
     @output_layer = []
-    @output_layer << Perceptron.new(nil)
-    @output_layer << Perceptron.new(nil)
-    @output_layer << Perceptron.new(nil)
-    @output_layer << Perceptron.new(nil)
-
-    @output_layer.each do |p|
+    NUM_OF_PERCEPTRON_IN_OUTPUT_LAYER.times do
+      perceptron = Perceptron.new(nil)
       (@hidden_layer.size + 1).times do
-        p.weights << rand(-0.1..0.1)
+        perceptron.weights << rand(-0.1..0.1)
       end
+      @output_layer << perceptron
     end
-
   end
 
   def feed(inputs, target_value)

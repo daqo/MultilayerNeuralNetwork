@@ -103,7 +103,7 @@ test_records = [
 ]
 
 nn = NeuralNetwork.new
-400.times do 
+1000.times do 
   records.each do |r|
     nn.feed(r[0] << 1, r[1])
   end
