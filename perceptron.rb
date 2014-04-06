@@ -1,19 +1,23 @@
+require 'debugger'
 class Perceptron
   attr_accessor :weights, :inputs
 
   def initialize(inputs, weights = nil)
     #inputs << 1 #Bias
     self.inputs = inputs
-
+    
     if weights.nil?
       @weights = []
-      inputs.size.times do 
-        @weights << rand(-0.5..0.5)
+      if inputs.nil?
+        @inputs = []
+      else
+        inputs.size.times do 
+          @weights << rand(-0.1..0.1)
+        end
       end
     else
       @weights = weights
     end
-    puts "Initial weights: #{@weights}"
   end
 
   def feedforward

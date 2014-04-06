@@ -3,32 +3,50 @@ require_relative 'perceptron'
 
 
 class NeuralNetwork
-  attr_accessor :hidden_layer, :output_layer, :inputs, :target_value, :output, :hidden_layer_output
+  attr_accessor :hidden_layer, :output_layer, :inputs, :target_value, :output, :hidden_layer_output, :output_layer_output
   NUM_OF_PERCEPTRON_IN_HIDDEN_LAYER = 2
   NUM_OF_PERCEPTRON_IN_OUTPUT_LAYER = 1
   EPOCH_MAX = 1000
 
-  def initialize(inputs, target_value)
-    self.inputs = inputs
-    self.target_value = target_value
+  def initialize
     @hidden_layer = []
-    @hidden_layer << Perceptron.new(@inputs, [1,0.5,1])
-    @hidden_layer << Perceptron.new(@inputs, [-1,2,1])
+    @hidden_layer << Perceptron.new([])
+    @hidden_layer << Perceptron.new([])
+    @hidden_layer << Perceptron.new([])
+    @hidden_layer << Perceptron.new([])
+    @hidden_layer.each do |p|
+      (4 + 1).times do #hardcoded
+        p.weights << rand(-0.1..0.1)
+      end
+    end
 
     @output_layer = []
-    @output_layer << Perceptron.new(nil, [1.5, -1, 1])
+    @output_layer << Perceptron.new(nil)
+    @output_layer << Perceptron.new(nil)
+    @output_layer << Perceptron.new(nil)
+    @output_layer << Perceptron.new(nil)
 
-    EPOCH_MAX.times { 
-      train
-      final_output
-    }
+    @output_layer.each do |p|
+      (@hidden_layer.size + 1).times do
+        p.weights << rand(-0.1..0.1)
+      end
+    end
 
+  end
+
+  def feed(inputs, target_value)
+    self.inputs = inputs
+    self.target_value = target_value
+
+    @hidden_layer.each do |p|
+      p.inputs = inputs
+    end
+    train
   end
 
   def train
     @hidden_layer_output = []
-    output_layer_output = []
-
+    @output_layer_output = []
 
     @hidden_layer.each do |p|
       @hidden_layer_output << p.feedforward
@@ -38,12 +56,37 @@ class NeuralNetwork
 
     @output_layer.each do |p|
       p.inputs = @hidden_layer_output
-      output_layer_output << p.feedforward
+      @output_layer_output << p.feedforward
     end
-    @output = max(output_layer, output_layer_output)
+    #@output = max(output_layer, output_layer_output)
 
-    error = calculate_total_error_in_network(@output)
+    network_errors = calculate_total_errors_in_network
     backpropagate_errors
+    #final_output
+  end
+
+  def test(inputs)
+    self.inputs = inputs
+
+    @hidden_layer.each do |p|
+      p.inputs = inputs
+    end
+
+    @hidden_layer_output = []
+    @output_layer_output = []
+
+    @hidden_layer.each do |p|
+      @hidden_layer_output << p.feedforward
+    end
+
+    @hidden_layer_output << 1 # Bias For Hidden Layer
+
+    @output_layer.each do |p|
+      p.inputs = @hidden_layer_output
+      @output_layer_output << p.feedforward
+    end
+
+    output_layer_output
   end
 
   def final_output
@@ -55,45 +98,51 @@ class NeuralNetwork
     puts "---------------------------"
   end
 
-  def max(output_layer, output_layer_output)
-    output_layer_output.first
-  end
+  # def max(output_layer, output_layer_output)
+  #   output_layer_output.max
+  # end
 
   def backpropagate_errors
-    error_output = calculate_error_for_output_unit
-    errors_hidden_units = calculate_error_for_hidden_units(@hidden_layer, @hidden_layer_output, error_output)
-    update_network_weights_proportionately(error_output, errors_hidden_units)
+    output_units_errors = calculate_error_for_output_units
+    hidden_units_errors = calculate_error_for_hidden_units(output_units_errors)
+    update_network_weights_proportionately(output_units_errors, hidden_units_errors)
   end
 
-  def update_network_weights_proportionately(error_output, errors_hidden_units)
-    @output_layer.each do |perceptron|
-      current_weights = perceptron.weights
-      current_weights.each_with_index do |www, i|
-        current_weights[i] += 0.5 * error_output * @hidden_layer_output[i]
+  def update_network_weights_proportionately(output_units_errors, hidden_units_errors)
+    @output_layer.each_with_index do |perceptron, j|
+      perceptron.weights.each_with_index do |w, i|
+        perceptron.weights[i] += 0.5 * output_units_errors[j] * @hidden_layer_output[i]
       end
     end
 
     @hidden_layer.each_with_index do |perceptron, j|
-      current_weights = perceptron.weights
-      current_weights.each_with_index do |w, i|
-        current_weights[i] += 0.5 * errors_hidden_units[j] * inputs[i]
+      perceptron.weights.each_with_index do |w, i|
+        perceptron.weights[i] += 0.5 * hidden_units_errors[j] * inputs[i]
       end
     end
   end
 
-  def calculate_error_for_hidden_units(hidden_layer, hidden_layer_output, error_output)
+  def calculate_error_for_hidden_units(output_units_errors)
     errors = []
-    hidden_layer.each_with_index do |perceptron, i|
-      errors << hidden_layer_output[i] * (1 - hidden_layer_output[i]) * ( @output_layer[0].weights[i] * error_output)
+    @hidden_layer.each_with_index do |perceptron, i|
+      errors << @hidden_layer_output[i] * (1 - @hidden_layer_output[i]) * ( @output_layer[0].weights[i] * output_units_errors[i])
     end
     errors
   end
 
-  def calculate_error_for_output_unit
-    @output * (1 - @output) * (@target_value - @output)
+  def calculate_error_for_output_units
+    output_units_errors = []
+    @output_layer.each_with_index do |p, i|
+      output_units_errors << @output_layer_output[i] * (1 - @output_layer_output[i]) * (@target_value[i] - @output_layer_output[i])
+    end
+    output_units_errors
   end
 
-  def calculate_total_error_in_network(estimated_output)
-    0.5 * ((@target_value - estimated_output) ** 2)
+  def calculate_total_errors_in_network
+    network_errors = []
+    @target_value.each_with_index do |t, i|
+      network_errors << 0.5 * ((t - @output_layer_output[i]) ** 2)
+    end
+    network_errors
   end
 end
