@@ -12,23 +12,8 @@ class NeuralNetwork
     self.num_of_perceptron_in_output_layer = output_layer_perceptron_numbers
     self.num_of_attributes = num_of_attributes
 
-    @hidden_layer = []
-    @num_of_perceptron_in_hidden_layer.times do
-      perceptron = Perceptron.new([])
-      (@num_of_attributes + 1).times do
-        perceptron.weights << rand(-0.1..0.1)
-      end
-      @hidden_layer << perceptron
-    end
-
-    @output_layer = []
-    @num_of_perceptron_in_output_layer.times do
-      perceptron = Perceptron.new([])
-      (@hidden_layer.size + 1).times do
-        perceptron.weights << rand(-0.1..0.1)
-      end
-      @output_layer << perceptron
-    end
+    initialize_hidden_layer
+    initialize_output_layer
   end
 
   public
@@ -40,12 +25,12 @@ class NeuralNetwork
         feed(r[0] << 1, r[1])
       end
       epoch_count += 1
-    end while calculate_total_error_in_network(dool) > 0.001
+    end while calculate_total_error_in_network(dool) > 0.01
     puts "EPOCH Count: #{epoch_count}"
   end
 
   def test(record_attribute)
-    self.inputs = record_attribute
+    self.inputs = record_attribute << 1
 
     @hidden_layer.each do |p|
       p.inputs = self.inputs
@@ -69,6 +54,27 @@ class NeuralNetwork
   end
 
   private
+  def initialize_hidden_layer
+    @hidden_layer = []
+    @num_of_perceptron_in_hidden_layer.times do
+      perceptron = Perceptron.new
+      (@num_of_attributes + 1).times do
+        perceptron.weights << Perceptron.random_initial_weight
+      end
+      @hidden_layer << perceptron
+    end
+  end
+
+  def initialize_output_layer
+    @output_layer = []
+    @num_of_perceptron_in_output_layer.times do
+      perceptron = Perceptron.new
+      (@hidden_layer.size + 1).times do
+        perceptron.weights << Perceptron.random_initial_weight
+      end
+      @output_layer << perceptron
+    end
+  end
 
   def feed(record_attributes, target_value)
     self.inputs = record_attributes
