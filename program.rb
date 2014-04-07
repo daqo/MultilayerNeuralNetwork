@@ -89,7 +89,8 @@ records = [
 [[0,0,1,1],[0,1,0,0]],
 [[0,0,1,2],[1,0,0,0]],
 [[0,1,0,2],[1,0,0,0]],
-[[0,1,0,1],[0,1,0,0]]
+[[0,1,0,1],[0,1,0,0]],
+[[0,0,0,3],[1,0,0,0]]
 ]
 
 test_records = [
@@ -103,9 +104,7 @@ test_records = [
 ]
 
 multi_layer_neural_network = NeuralNetwork.new(4, 4, 4)
-1000.times do 
-  multi_layer_neural_network.train(records)
-end
+multi_layer_neural_network.train(records)
 
 test_records.each do |r|
   oracle = multi_layer_neural_network.test(r[0] << 1)
