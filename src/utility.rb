@@ -6,8 +6,8 @@ class Utility
     records = records_on_file.map do |r|
       attributes = r.map { |e| e.to_f }
       correct_format = []
-      correct_format << attributes[0..3]
-      correct_format << attributes[4..7]
+      correct_format << attributes[0..12]
+      correct_format << attributes[13..15]
       correct_format
     end
   end

@@ -8,8 +8,8 @@ class Perceptron
 
   def feedforward
     sum = 0
-    @weights.each_with_index do |w, i|
-      sum += @inputs[i] * w
+    @weights.each_with_index do |ww, i|
+      sum += @inputs[i] * ww
     end
     calculate_estimated_output(sum)
   end

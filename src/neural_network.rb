@@ -20,13 +20,13 @@ class NeuralNetwork
 
   def train(training_records)
     epoch_count = 0
-    begin
+    #begin
       training_records.each do |r|
         feed(r[0] << 1, r[1])
       end
       epoch_count += 1
-    end while calculate_total_error_in_network(dool) > 0.01
-    puts "EPOCH Count: #{epoch_count}"
+    #end while calculate_total_error_in_network(dool) > 0.01
+    #puts "EPOCH Count: #{epoch_count}"
   end
 
   def test(record_attribute)
