@@ -1,18 +1,18 @@
 require_relative 'utility'
-require_relative 'neural_network'
+require_relative 'multi_layer_perceptron'
 
 
 # training_records = Utility.read_csv_file("../data/game/gameData-normalized.csv")
 # validation_records = Utility.read_csv_file("../data/game/gameData-validation-set.csv")
-# multi_layer_neural_network = NeuralNetwork.new(4, 4, 4)
+# neural_network = MultiLayerPerceptron.new(4, 4, 4)
 
 # training_records = Utility.read_csv_file("../data/windsurf/windsurfData-normalized.csv")
 # validation_records = Utility.read_csv_file("../data/windsurf/windsurfData-validation-set.csv")
-# multi_layer_neural_network = NeuralNetwork.new(4, 4, 1)
+# neural_network = MultiLayerPerceptron.new(4, 4, 1)
 
 training_records = Utility.read_csv_file("../data/wine/wine-revised-normalized.csv")
 validation_records = Utility.read_csv_file("../data/wine/wine-revised-validation-set.csv")
-multi_layer_neural_network = NeuralNetwork.new(13, 4, 3)
+neural_network = MultiLayerPerceptron.new(13, 4, 3)
 
 
 def format_oracle(oracle)
@@ -24,10 +24,10 @@ def format_oracle(oracle)
   puts ']'
 end
 
-multi_layer_neural_network.train(training_records)
+neural_network.train(training_records)
 
 validation_records.each do |r|
-  oracle = multi_layer_neural_network.test(r[0])
+  oracle = neural_network.test(r[0])
   puts "Result: #{r[1]}"
   #puts "Oracle: #{oracle}"
   format_oracle(oracle)

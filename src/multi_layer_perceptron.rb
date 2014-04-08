@@ -1,4 +1,6 @@
+require 'debugger'
 require_relative 'perceptron'
+
 
 class MultiLayerPerceptron
   attr_accessor :hidden_layer, :output_layer, :inputs, :target_values, :num_of_attributes
