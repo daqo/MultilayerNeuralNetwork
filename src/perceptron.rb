@@ -1,9 +1,12 @@
 class Perceptron
-  attr_accessor :weights, :inputs
+  attr_accessor :weights, :inputs, :previous_weights_delta
 
   def initialize
     @inputs = []
     @weights = []
+    # Use previous_weights_delta to hold previous change in weight
+    # We will use it for adding momentum.
+    @previous_weights_delta = []
   end
 
   def feedforward

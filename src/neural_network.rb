@@ -3,9 +3,10 @@ require_relative 'perceptron'
 
 
 class NeuralNetwork
-  attr_accessor :hidden_layer, :output_layer_output, :output_layer, :inputs, :target_values, :num_of_attributes
+  attr_accessor :hidden_layer, :output_layer, :inputs, :target_values, :num_of_attributes
   EPOCH_MAX = 1000
   LEARNING_FACTOR = 0.5
+  MOMENTUM = 0.9
 
   def initialize(num_of_attributes, hidden_layer_perceptron_numbers, output_layer_perceptron_numbers)
     self.num_of_attributes = num_of_attributes
@@ -33,6 +34,7 @@ class NeuralNetwork
       end
       puts "#{error}" if i % 10 == 0
     end while error > 0.01
+    puts "Number of epochs: #{i}"
   end
 
   def test(record_attribute)
@@ -66,6 +68,7 @@ class NeuralNetwork
       perceptron = Perceptron.new
       (@num_of_attributes + 1).times do
         perceptron.weights << Perceptron.random_initial_weight
+        perceptron.previous_weights_delta << 0
       end
       @hidden_layer << perceptron
     end
@@ -77,6 +80,7 @@ class NeuralNetwork
       perceptron = Perceptron.new
       (@hidden_layer.size + 1).times do
         perceptron.weights << Perceptron.random_initial_weight
+        perceptron.previous_weights_delta << 0
       end
       @output_layer << perceptron
     end
@@ -95,7 +99,7 @@ class NeuralNetwork
 
   def backpropagate
     hidden_layer_output = []
-    @output_layer_output = []
+    output_layer_output = []
 
     @hidden_layer.each do |p|
       hidden_layer_output << p.feedforward
@@ -105,11 +109,11 @@ class NeuralNetwork
 
     @output_layer.each do |p|
       p.inputs = hidden_layer_output
-      @output_layer_output << p.feedforward
+      output_layer_output << p.feedforward
     end
 
-    backpropagate_errors(@output_layer_output, hidden_layer_output)
-    calculate_total_error_in_network(@output_layer_output)
+    backpropagate_errors(output_layer_output, hidden_layer_output)
+    calculate_total_error_in_network(output_layer_output)
   end
 
   def backpropagate_errors(output_layer_output, hidden_layer_output)
@@ -121,13 +125,21 @@ class NeuralNetwork
   def update_network_weights_proportionately(output_units_errors, hidden_units_errors, hidden_layer_output)
     @output_layer.each_with_index do |perceptron, j|
       perceptron.weights.each_with_index do |w, i|
-        perceptron.weights[i] += LEARNING_FACTOR * output_units_errors[j] * hidden_layer_output[i]
+        delta = LEARNING_FACTOR * output_units_errors[j] * hidden_layer_output[i]
+        perceptron.weights[i] += delta
+        # Use following two lines if you want to use momentum
+        perceptron.weights[i] += MOMENTUM * perceptron.previous_weights_delta[i]
+        perceptron.previous_weights_delta[i] = delta
       end
     end
 
     @hidden_layer.each_with_index do |perceptron, j|
       perceptron.weights.each_with_index do |w, i|
-        perceptron.weights[i] += LEARNING_FACTOR * hidden_units_errors[j] * inputs[i]
+        delta = LEARNING_FACTOR * hidden_units_errors[j] * inputs[i]
+        perceptron.weights[i] += delta
+        # Use following two lines if you want to use momentum
+        perceptron.weights[i] += MOMENTUM * perceptron.previous_weights_delta[i]
+        perceptron.previous_weights_delta[i] = delta
       end
     end
   end
