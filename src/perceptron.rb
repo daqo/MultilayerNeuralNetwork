@@ -14,10 +14,10 @@ class Perceptron
     @weights.each_with_index do |ww, i|
       sum += @inputs[i] * ww
     end
-    calculate_estimated_output(sum)
+    estimated_output(sum)
   end
 
-  def calculate_estimated_output(sum)
+  def estimated_output(sum)
     1.to_f / (1 + Math::E ** (-1 * sum))
   end
 
