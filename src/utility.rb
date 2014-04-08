@@ -15,6 +15,3 @@ class Utility
     end
   end
 end
-
-# correct_format << attributes[0..12]
-# correct_format << attributes[13..15]
