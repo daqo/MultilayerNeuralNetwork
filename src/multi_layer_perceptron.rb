@@ -7,6 +7,7 @@ class MultiLayerPerceptron
   EPOCH_MAX = 1000
   LEARNING_FACTOR = 0.5
   MOMENTUM = 0.9
+  DESIRABLE_TOTAL_NETWORK_ERROR = 0.1
 
   def initialize(num_of_attributes, hidden_layer_perceptron_numbers, output_layer_perceptron_numbers)
     self.num_of_attributes = num_of_attributes
@@ -32,8 +33,8 @@ class MultiLayerPerceptron
       training_records.each do |r|
         network_error += feed(r[0] << 1, r[1])
       end
-      puts "#{network_error}" if epoch_num % 10 == 0
-    end while network_error > 0.01
+      puts "Network Error: #{network_error}" if epoch_num % 10 == 0
+    end while network_error > DESIRABLE_TOTAL_NETWORK_ERROR
     puts "Number of epochs: #{epoch_num}"
   end
 
