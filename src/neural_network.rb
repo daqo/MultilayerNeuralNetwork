@@ -3,30 +3,36 @@ require_relative 'perceptron'
 
 
 class NeuralNetwork
-  attr_accessor :dool, :hidden_layer, :output_layer, :inputs, :target_value, :num_of_perceptron_in_hidden_layer, :num_of_perceptron_in_output_layer, :num_of_attributes
+  attr_accessor :hidden_layer, :output_layer_output, :output_layer, :inputs, :target_values, :num_of_attributes
   EPOCH_MAX = 1000
   LEARNING_FACTOR = 0.5
 
   def initialize(num_of_attributes, hidden_layer_perceptron_numbers, output_layer_perceptron_numbers)
-    self.num_of_perceptron_in_hidden_layer = hidden_layer_perceptron_numbers
-    self.num_of_perceptron_in_output_layer = output_layer_perceptron_numbers
     self.num_of_attributes = num_of_attributes
 
-    initialize_hidden_layer
-    initialize_output_layer
+    initialize_hidden_layer(hidden_layer_perceptron_numbers)
+    initialize_output_layer(output_layer_perceptron_numbers)
   end
 
   public
 
   def train(training_records)
-    epoch_count = 0
-    #begin
+    # EPOCH_MAX.times do |i|
+    #   error = 0.0
+    #   training_records.each do |r|
+    #     error += feed(r[0] << 1, r[1])
+    #   end
+    #   puts "#{error}" if i % 10 == 0
+    # end
+    i = 0
+    begin
+      i += 1
+      error = 0.0
       training_records.each do |r|
-        feed(r[0] << 1, r[1])
+        error += feed(r[0] << 1, r[1])
       end
-      epoch_count += 1
-    #end while calculate_total_error_in_network(dool) > 0.01
-    #puts "EPOCH Count: #{epoch_count}"
+      puts "#{error}" if i % 10 == 0
+    end while error > 0.01
   end
 
   def test(record_attribute)
@@ -54,9 +60,9 @@ class NeuralNetwork
   end
 
   private
-  def initialize_hidden_layer
+  def initialize_hidden_layer(perceptron_numbers_in_layer)
     @hidden_layer = []
-    @num_of_perceptron_in_hidden_layer.times do
+    perceptron_numbers_in_layer.times do
       perceptron = Perceptron.new
       (@num_of_attributes + 1).times do
         perceptron.weights << Perceptron.random_initial_weight
@@ -65,9 +71,9 @@ class NeuralNetwork
     end
   end
 
-  def initialize_output_layer
+  def initialize_output_layer(perceptron_numbers_in_layer)
     @output_layer = []
-    @num_of_perceptron_in_output_layer.times do
+    perceptron_numbers_in_layer.times do
       perceptron = Perceptron.new
       (@hidden_layer.size + 1).times do
         perceptron.weights << Perceptron.random_initial_weight
@@ -76,9 +82,9 @@ class NeuralNetwork
     end
   end
 
-  def feed(record_attributes, target_value)
+  def feed(record_attributes, target_values)
     self.inputs = record_attributes
-    self.target_value = target_value
+    self.target_values = target_values
 
     @hidden_layer.each do |perceptron|
       perceptron.inputs = self.inputs
@@ -89,7 +95,7 @@ class NeuralNetwork
 
   def backpropagate
     hidden_layer_output = []
-    output_layer_output = []
+    @output_layer_output = []
 
     @hidden_layer.each do |p|
       hidden_layer_output << p.feedforward
@@ -99,12 +105,11 @@ class NeuralNetwork
 
     @output_layer.each do |p|
       p.inputs = hidden_layer_output
-      output_layer_output << p.feedforward
+      @output_layer_output << p.feedforward
     end
 
-    @dool = output_layer_output
-
-    backpropagate_errors(output_layer_output, hidden_layer_output)
+    backpropagate_errors(@output_layer_output, hidden_layer_output)
+    calculate_total_error_in_network(@output_layer_output)
   end
 
   def backpropagate_errors(output_layer_output, hidden_layer_output)
@@ -144,14 +149,14 @@ class NeuralNetwork
   def calculate_error_for_output_units(output_units_errors, output_layer_output)
     output_units_errors = []
     @output_layer.each_with_index do |p, i|
-      output_units_errors << output_layer_output[i] * (1 - output_layer_output[i]) * (@target_value[i] - output_layer_output[i])
+      output_units_errors << output_layer_output[i] * (1 - output_layer_output[i]) * (@target_values[i] - output_layer_output[i])
     end
     output_units_errors
   end
 
   def calculate_total_error_in_network(output_layer_output)
     network_error = 0
-    @target_value.each_with_index do |t, i|
+    @target_values.each_with_index do |t, i|
       network_error += 0.5 * ((t - output_layer_output[i]) ** 2)
     end
     network_error
